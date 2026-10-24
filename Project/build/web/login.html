@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ Thống Đăng Ký & Bấm Biển Số Xe Trực Tuyến (Chuẩn VNeID)</title>
+    <!-- Google Fonts: Be Vietnam Pro & Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --vneid-red: #a81c1e;
+            --vneid-red-dark: #7a1214;
+            --vneid-red-light: #c92a2a;
+            --vneid-gold: #e5a919;
+            --vneid-gold-light: #fbe083;
+            --vneid-gold-dark: #b8860b;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --border-radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4f0a0d 0%, #821417 40%, #a81c1e 75%, #380709 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 24px 16px;
+        }
+
+        /* Họa tiết Trống đồng Đông Sơn mờ chìm nghệ thuật */
+        .trong-dong-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(900px, 120vw);
+            height: min(900px, 120vw);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><g fill="none" stroke="%23fbe083" stroke-width="1.2" opacity="0.08"><circle cx="250" cy="250" r="235"/><circle cx="250" cy="250" r="215" stroke-dasharray="4 6"/><circle cx="250" cy="250" r="185"/><circle cx="250" cy="250" r="150" stroke-width="2"/><circle cx="250" cy="250" r="110"/><circle cx="250" cy="250" r="70"/><circle cx="250" cy="250" r="30"/><polygon points="250,220 258,242 280,250 258,258 250,280 242,258 220,250 242,242" fill="%23fbe083" opacity="0.15"/></g></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Tia sáng vàng kim trang trọng phía sau */
+        .glow-sphere {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(229, 169, 25, 0.25) 0%, rgba(168, 28, 30, 0) 70%);
+            border-radius: 50%;
+            top: 10%;
+            right: 15%;
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-sphere-2 {
+            position: fixed;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(201, 42, 42, 0.35) 0%, rgba(56, 7, 9, 0) 70%);
+            border-radius: 50%;
+            bottom: 5%;
+            left: 10%;
+            filter: blur(50px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Layout Container */
+        .main-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Bar */
+        .portal-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .emblem-wrapper {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff3c4 0%, #e5a919 70%, #996500 100%);
+            box-shadow: 0 0 25px rgba(229, 169, 25, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #fffae6;
+            flex-shrink: 0;
+            animation: pulse-gold 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 20px rgba(229, 169, 25, 0.5); }
+            50% { box-shadow: 0 0 35px rgba(251, 224, 131, 0.85); }
+        }
+
+        .emblem-wrapper i {
+            font-size: 34px;
+            color: var(--vneid-red);
+        }
+
+        .portal-title-block h4 {
+            font-size: 0.95rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--vneid-gold-light);
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .portal-title-block h1 {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            margin: 0;
+        }
+
+        .portal-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 3px;
+        }
+
+        /* Container 2 Cột */
+        .auth-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 
+                        0 0 0 1px rgba(241, 181, 28, 0.4);
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            backdrop-filter: blur(12px);
+        }
+
+        /* Cột bên trái: Banner giới thiệu & Thẻ định danh */
+        .info-panel {
+            flex: 1 1 45%;
+            background: linear-gradient(145deg, #180304 0%, #3d070a 50%, #610d10 100%);
+            padding: 40px 32px;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            border-right: 2px solid rgba(229, 169, 25, 0.3);
+        }
+
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(241, 181, 28, 0.08) 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .vneid-chip-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%);
+            border: 1px solid rgba(251, 224, 131, 0.35);
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vneid-chip-card::after {
+            content: "VNeID";
+            position: absolute;
+            right: -10px;
+            bottom: -15px;
+            font-size: 5rem;
+            font-weight: 900;
+            font-family: 'Montserrat', sans-serif;
+            color: rgba(255, 255, 255, 0.04);
+            pointer-events: none;
+        }
+
+        .chip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chip-icon {
+            width: 38px;
+            height: 28px;
+            background: linear-gradient(135deg, #fce084 0%, #d4af37 100%);
+            border-radius: 5px;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chip-icon i {
+            font-size: 13px;
+            color: #5c3f00;
+        }
+
+        .card-type-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--vneid-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid rgba(229, 169, 25, 0.5);
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: rgba(229, 169, 25, 0.1);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 0 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .feature-item i {
+            color: var(--vneid-gold);
+            font-size: 1rem;
+            margin-top: 3px;
+        }
+
+        /* Cột bên phải: Form Đăng Nhập */
+        .form-panel {
+            flex: 1 1 55%;
+            padding: 44px 44px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 28px;
+        }
+
+        .form-header h2 {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--vneid-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Input Form Group */
+        .input-group-custom {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group-custom label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .input-field-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 1.05rem;
+            transition: color 0.2s;
+            pointer-events: none;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            height: 48px;
+            padding: 10px 16px 10px 44px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.93rem;
+            color: var(--text-dark);
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--vneid-red);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(168, 28, 30, 0.12);
+        }
+
+        /* Checkbox & Quên mật khẩu */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            user-select: none;
+        }
+
+        .custom-checkbox input[type="checkbox"] {
+            accent-color: var(--vneid-red);
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .forgot-link {
+            color: var(--vneid-red);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: var(--vneid-red-dark);
+            text-decoration: underline;
+        }
+
+        /* Nút Đăng nhập VNeID Gradient */
+        .btn-vneid-login {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #c92a2a 0%, #a81c1e 50%, #7a1214 100%);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 28, 30, 0.35);
+        }
+
+        .btn-vneid-login:hover {
+            background: linear-gradient(135deg, #d93838 0%, #ba1b1d 50%, #8c1417 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(168, 28, 30, 0.45);
+            color: #ffffff;
+        }
+
+        /* Đăng ký tài khoản công dân */
+        .register-box {
+            text-align: center;
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .register-box a {
+            color: var(--vneid-red);
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .register-box a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer bản quyền */
+        .system-footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.8rem;
+            margin-top: 24px;
+        }
+
+        .system-footer a {
+            color: var(--vneid-gold-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .info-panel {
+                display: none;
+            }
+            .form-panel {
+                flex: 1 1 100%;
+                padding: 32px 24px;
+            }
+            .portal-title-block h1 {
+                font-size: 1.25rem;
+            }
+            .emblem-wrapper {
+                width: 52px;
+                height: 52px;
+            }
+            .emblem-wrapper i {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nền mờ họa tiết Trống Đồng & Quả cầu ánh sáng -->
+    <div class="trong-dong-bg"></div>
+    <div class="glow-sphere"></div>
+    <div class="glow-sphere-2"></div>
+
+    <div class="main-wrapper">
+        
+        <!-- HEADER CỔNG DỊCH VỤ -->
+        <header class="portal-header">
+            <div class="emblem-wrapper">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="portal-title-block text-start">
+                <h4>Bộ Công An &bull; Cục Cảnh Sát Giao Thông</h4>
+                <h1>Hệ Thống Đăng Ký & Bấm Biển Số Xe Trực Tuyến</h1>
+                <div class="portal-subtitle">Nền tảng định danh công dân & quản lý biển số xe mô tô, xe gắn máy</div>
+            </div>
+        </header>
+
+        <!-- CONTAINER CHÍNH -->
+        <div class="auth-container">
+            
+            <!-- CỘT TRÁI: PANEL THÔNG TIN ĐỊNH DANH (PHONG CÁCH VNeID) -->
+            <div class="info-panel">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-bold" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-certificate me-1"></i> DỊCH VỤ CÔNG MỨC ĐỘ 4
+                        </span>
+                        <span class="text-white-50" style="font-size: 0.8rem;">Đề án 06/CP</span>
+                    </div>
+
+                    <h3 style="font-size: 1.35rem; font-weight: 800; line-height: 1.4; color: #fff;">
+                        Định danh điện tử phương tiện giao thông toàn diện
+                    </h3>
+                    <p style="font-size: 0.86rem; color: rgba(255,255,255,0.8); margin-top: 8px;">
+                        Tích hợp cơ sở dữ liệu quốc gia về dân cư, tự động liên kết CCCD 12 số với biển số xe và mã bấm biển số ngẫu nhiên cấp Quận/Huyện.
+                    </p>
+
+                    <!-- Thẻ mô phỏng CCCD gắn chip / VNeID -->
+                    <div class="vneid-chip-card">
+                        <div class="chip-header">
+                            <div class="chip-icon">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <span class="card-type-badge">Tài khoản định danh mức 2</span>
+                        </div>
+                        <div style="font-family: 'Montserrat', monospace; font-size: 1.1rem; letter-spacing: 2px; font-weight: 700; color: #fff; margin-bottom: 6px;">
+                            001 098 012 345
+                        </div>
+                        <div class="d-flex justify-content-between text-white-50" style="font-size: 0.75rem;">
+                            <span>CHỦ PHƯƠNG TIỆN</span>
+                            <span>HIỆU LỰC: VĨNH VIỄN</span>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách tiện ích -->
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Khai báo phương tiện trực tuyến không cần đến trụ sở.</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Bấm biển số ngẫu nhiên công khai, minh bạch với mã xác thực.</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Tra cứu trạng thái thẩm định và kết quả cấp biển tức thì.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Footer cột thông tin -->
+                <div class="pt-4 border-top border-white-10 text-white-50" style="font-size: 0.78rem;">
+                    <i class="fa-solid fa-headset text-warning me-1"></i> Tổng đài hỗ trợ VNeID: <strong>1900 0368</strong> (24/7)
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: FORM ĐĂNG NHẬP -->
+            <div class="form-panel">
+                
+                <div class="form-header">
+                    <h2>
+                        <i class="fa-solid fa-id-card"></i> Đăng Nhập Hệ Thống
+                    </h2>
+                    <p>Sử dụng tài khoản công dân hoặc tài khoản cán bộ thẩm định</p>
+                </div>
+
+                <!-- PHƯƠNG THỨC FORM MẬT KHẨU TRUYỀN THỐNG -->
+                <form action="login" method="POST">
+                    
+                    <!-- Username / CCCD -->
+                    <div class="input-group-custom">
+                        <label for="userName">Số định danh cá nhân (CCCD) hoặc Tên tài khoản</label>
+                        <div class="input-field-wrapper">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input type="text" 
+                                   id="userName" 
+                                   name="userName" 
+                                   class="form-control-custom" 
+                                   placeholder="Nhập 12 số CCCD hoặc tên đăng nhập" 
+                                   required 
+                                   autocomplete="username">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group-custom">
+                        <label for="userpassword">Mật khẩu</label>
+                        <div class="input-field-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" 
+                                   id="userpassword" 
+                                   name="userpassword" 
+                                   class="form-control-custom" 
+                                   placeholder="Nhập mật khẩu của bạn" 
+                                   required 
+                                   autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <!-- Ghi nhớ & Quên mật khẩu -->
+                    <div class="form-options">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" name="rememberMe" id="rememberMe" value="true">
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
+                        <a href="forgot-password.html" class="forgot-link">Quên mật khẩu?</a>
+                    </div>
+
+                    <!-- Nút Đăng Nhập -->
+                    <button type="submit" class="btn-vneid-login">
+                        <i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP HỆ THỐNG
+                    </button>
+                </form>
+
+                <!-- Đăng ký tài khoản công dân mới (FR-01) -->
+                <div class="register-box">
+                    Chưa có tài khoản công dân? 
+                    <a href="register.html"><i class="fa-solid fa-user-plus me-1"></i>Đăng ký tài khoản mới</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER BẢN QUYỀN -->
+        <footer class="system-footer">
+            <p class="mb-1">&copy; 2026 Cổng Dịch Vụ Công Đăng Ký Phương Tiện & Bấm Biển Số Xe Máy Trực Tuyến.</p>
+            <p class="mb-0">
+                Tuân thủ quy chuẩn định danh điện tử <a href="#">VNeID</a> &bull; Bảo mật theo tiêu chuẩn an toàn thông tin cấp độ 3.
+            </p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

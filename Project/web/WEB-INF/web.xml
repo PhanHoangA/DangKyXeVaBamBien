@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <display-name>Online Vehicle Registration &amp; License Plate System</display-name>
+
+    <!-- Khởi tạo trang mặc định -->
+    <welcome-file-list>
+        <welcome-file>home.jsp</welcome-file>
+        <welcome-file>login</welcome-file>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <!-- Cấu hình thời gian hết hạn phiên làm việc (30 phút) -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <!-- 1. Authentication Servlets -->
+    <servlet>
+        <servlet-name>LoginController</servlet-name>
+        <servlet-class>Controller.LoginController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginController</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutController</servlet-name>
+        <servlet-class>Controller.LogoutController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutController</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterController</servlet-name>
+        <servlet-class>Controller.RegisterController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterController</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <!-- 2. Officer Servlets -->
+    <servlet>
+        <servlet-name>OfficerRegistrationsController</servlet-name>
+        <servlet-class>Controller.OfficerRegistrationsController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OfficerRegistrationsController</servlet-name>
+        <url-pattern>/officer/registrations</url-pattern>
+        <url-pattern>/officer/home</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OfficerReviewController</servlet-name>
+        <servlet-class>Controller.OfficerReviewController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OfficerReviewController</servlet-name>
+        <url-pattern>/officer/review</url-pattern>
+    </servlet-mapping>
+
+    <!-- 3. Citizen (User) Servlets -->
+    <servlet>
+        <servlet-name>VehicleFormController</servlet-name>
+        <servlet-class>Controller.VehicleFormController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VehicleFormController</servlet-name>
+        <url-pattern>/user/vehicle-form</url-pattern>
+        <url-pattern>/user/register-vehicle</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserDashboardController</servlet-name>
+        <servlet-class>Controller.UserDashboardController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserDashboardController</servlet-name>
+        <url-pattern>/user/dashboard</url-pattern>
+        <url-pattern>/user/registrations</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DrawPlateController</servlet-name>
+        <servlet-class>Controller.DrawPlateController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DrawPlateController</servlet-name>
+        <url-pattern>/user/draw-plate</url-pattern>
+    </servlet-mapping>
+
+    <!-- 4. Administrator Servlets -->
+    <servlet>
+        <servlet-name>AdminController</servlet-name>
+        <servlet-class>Controller.AdminController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminController</servlet-name>
+        <url-pattern>/admin/home</url-pattern>
+        <url-pattern>/admin/dashboard</url-pattern>
+        <url-pattern>/admin/license-plates</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminOfficersController</servlet-name>
+        <servlet-class>Controller.AdminOfficersController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminOfficersController</servlet-name>
+        <url-pattern>/admin/officers</url-pattern>
+    </servlet-mapping>
+
+</web-app>

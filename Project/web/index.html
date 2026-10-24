@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Dịch Vụ Công Đăng Ký & Bấm Biển Số Xe</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-custom { background-color: #0f2c59; }
+        .plate-box {
+            background: #fff;
+            border: 4px solid #198754;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .plate-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #212529;
+        }
+        .slot-digit {
+            display: inline-block;
+            width: 45px;
+            background: #212529;
+            color: #fff;
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#"><i class="fa-solid fa-car-side me-2"></i>CSGT Portal - Đăng Ký Xe Định Danh</a>
+            <div class="d-flex align-items-center text-white">
+                <span class="me-3"><i class="fa-solid fa-user-circle me-1"></i>Nguyễn Văn A (Quận Cầu Giấy)</span>
+                <a href="#" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container my-4">
+        
+        <!-- THỐNG KÊ NHANH -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-white p-3 border-start border-primary border-4">
+                    <h6 class="text-muted">Tổng hồ sơ đăng ký</h6>
+                    <h3 class="fw-bold text-primary mb-0">03</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-white p-3 border-start border-warning border-4">
+                    <h6 class="text-muted">Đang chờ duyệt</h6>
+                    <h3 class="fw-bold text-warning mb-0">01</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-white p-3 border-start border-success border-4">
+                    <h6 class="text-muted">Đã cấp biển số</h6>
+                    <h3 class="fw-bold text-success mb-0">01</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢNG DANH SÁCH HỒ SƠ -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-list-check me-2"></i>Danh Sách Hồ Sơ Đăng Ký Xe Của Bạn</h5>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    <i class="fa-solid fa-plus me-1"></i> Khai Báo Xe Mới
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Mã HS</th>
+                                <th>Phương tiện & Dòng xe</th>
+                                <th>Số khung / Số máy</th>
+                                <th>Trạng thái</th>
+                                <th>Mã Bấm Biển</th>
+                                <th class="text-end pe-3">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Hồ sơ 1: Đã duyệt, chờ bấm biển -->
+                            <tr>
+                                <td class="ps-3 fw-bold">#01</td>
+                                <td>
+                                    <strong>Honda SH 125i</strong><br>
+                                    <small class="text-muted">Màu: Đen nhám | 125cc</small>
+                                </td>
+                                <td>
+                                    <code>SK: RLHJF510M...</code><br>
+                                    <code>SM: JF51E-1234...</code>
+                                </td>
+                                <td><span class="badge bg-primary">APPROVED (Đã duyệt)</span></td>
+                                <td><code>DRAW-991823</code></td>
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#drawPlateModal">
+                                        <i class="fa-solid fa-dice me-1"></i> Bấm Biển Ngay
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Hồ sơ 2: Bị từ chối -->
+                            <tr>
+                                <td class="ps-3 fw-bold">#02</td>
+                                <td>
+                                    <strong>Yamaha Exciter 155</strong><br>
+                                    <small class="text-muted">Màu: Xanh GP | 155cc</small>
+                                </td>
+                                <td>
+                                    <code>SK: RLCUG101P...</code><br>
+                                    <code>SM: G3D4E-9988...</code>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger">REJECTED (Bị từ chối)</span><br>
+                                    <small class="text-danger">Lý do: Sai số hóa đơn VAT</small>
+                                </td>
+                                <td>---</td>
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-outline-warning btn-sm">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> Sửa lại hồ sơ
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Hồ sơ 3: Đã hoàn tất -->
+                            <tr>
+                                <td class="ps-3 fw-bold">#03</td>
+                                <td>
+                                    <strong>VinFast Evo200</strong><br>
+                                    <small class="text-muted">Màu: Trắng | Xe điện</small>
+                                </td>
+                                <td>
+                                    <code>SK: RLVFEV200...</code><br>
+                                    <code>SM: VF200-8822...</code>
+                                </td>
+                                <td><span class="badge bg-success">DRAWN (Hoàn tất)</span></td>
+                                <td>Đã sử dụng</td>
+                                <td class="text-end pe-3">
+                                    <span class="badge bg-success fs-6 p-2"><i class="fa-solid fa-check me-1"></i> 29-P1 688.88</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PHÒNG BẤM BIỂN SỐ (Interactive Simulator) -->
+    <div class="modal fade" id="drawPlateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header navbar-custom text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-dice me-2"></i>Phòng Bấm Biển Số Định Danh Trực Tuyến</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <p class="text-muted mb-4">Chủ xe: <strong>Nguyễn Văn A</strong> | Xe: <strong>Honda SH 125i</strong> | Khu vực: <strong>Quận Cầu Giấy (29-P1)</strong></p>
+                    
+                    <!-- Khung biển số -->
+                    <div class="plate-box mx-auto mb-4" style="max-width: 400px;">
+                        <h4 class="text-success fw-bold mb-1">29-P1</h4>
+                        <div class="plate-number" id="plateDisplay">
+                            <span class="slot-digit">?</span>
+                            <span class="slot-digit">?</span>
+                            <span class="slot-digit">?</span>
+                            <span class="slot-digit">.</span>
+                            <span class="slot-digit">?</span>
+                            <span class="slot-digit">?</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="inputCodeArea">
+                        <label class="form-label fw-bold">Nhập mã xác thực bấm biển (Draw Code):</label>
+                        <input type="text" id="txtDrawCode" class="form-control text-center mx-auto" style="max-width: 250px;" value="DRAW-991823" placeholder="Nhập mã DRAW-xxxxxx">
+                    </div>
+
+                    <button id="btnStartDraw" class="btn btn-success btn-lg px-5 fw-bold shadow" onclick="startDrawingPlate()">
+                        <i class="fa-solid fa-play me-2"></i> BẤM BIỂN NGAY
+                    </button>
+
+                    <div id="resultAlert" class="alert alert-success mt-4 d-none" role="alert">
+                        🎉 <strong id="finalPlateText">CHÚC MỪNG!</strong> Biển số định danh đã được cấp thành công cho xe của bạn!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript mô phỏng hiệu ứng quay số -->
+    <script>
+        function startDrawingPlate() {
+            let codeInput = document.getElementById('txtDrawCode').value.trim();
+            if(codeInput === "") {
+                alert("Vui lòng nhập mã bấm biển (Draw Code)!");
+                return;
+            }
+
+            let btn = document.getElementById('btnStartDraw');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Đang quay số...';
+
+            let digits = document.querySelectorAll('.slot-digit');
+            let counter = 0;
+            
+            // Hiệu ứng số nhảy ngẫu nhiên trong 2.5 giây
+            let interval = setInterval(() => {
+                digits.forEach((el, index) => {
+                    if(index !== 3) { // Bỏ qua dấu chấm '.'
+                        el.innerText = Math.floor(Math.random() * 10);
+                    }
+                });
+                counter++;
+                if(counter > 25) {
+                    clearInterval(interval);
+                    // Hiển thị kết quả cố định (Giả lập kết quả trả về từ Servlet)
+                    digits[0].innerText = '6';
+                    digits[1].innerText = '8';
+                    digits[2].innerText = '8';
+                    digits[4].innerText = '8';
+                    digits[5].innerText = '8';
+                    
+                    btn.classList.add('d-none');
+                    document.getElementById('inputCodeArea').classList.add('d-none');
+                    let alertBox = document.getElementById('resultAlert');
+                    alertBox.classList.remove('d-none');
+                    document.getElementById('finalPlateText').innerText = "CHÚC MỪNG! Bạn đã trúng biển số: 29-P1 688.88";
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html>

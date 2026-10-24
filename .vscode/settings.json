@@ -1,0 +1,10 @@
+{
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "Project/allowedlib - Copy/jakarta.servlet.jsp.jstl-2.0.0.jar",
+    "Project/allowedlib - Copy/jakarta.servlet.jsp.jstl-api-2.0.0.jar",
+    "Project/allowedlib - Copy/jaxb-api-2.1.jar",
+    "Project/allowedlib - Copy/mssql-jdbc-13.2.0.jre11.jar",
+    "c:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\lib\\servlet-api.jar"
+  ]
+}
