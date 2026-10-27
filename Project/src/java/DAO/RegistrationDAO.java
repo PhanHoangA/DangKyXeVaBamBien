@@ -332,6 +332,104 @@ public class RegistrationDAO extends DBContext {
     }
 
     /**
+     * FR-04: Lấy chi tiết 1 hồ sơ cụ thể kèm thông tin phương tiện thuộc quyền sở hữu của công dân
+     * Dùng để nạp lại dữ liệu xe lên form chỉnh sửa sau khi bị CSGT từ chối.
+     */
+    public Registration getUserRegistrationById(int registrationId, int ownerId) {
+        if (connection == null) {
+            return null;
+        }
+
+        String sql = "SELECT r.registrationId, r.vehicleId, r.ownerId, r.districtId, r.plateId, r.officerId, " +
+                     "       r.drawCode, r.feeAmount, r.status, r.rejectionReason, r.submittedAt, r.approvedAt, r.drawnAt, " +
+                     "       v.modelName, v.engineNumber, v.chassisNumber, v.color, v.engineCapacity, v.vehicleValue, " +
+                     "       v.taxReceiptNumber, v.invoiceNumber, v.createAt AS vehicleCreateAt, " +
+                     "       b.brandId, b.brandName, " +
+                     "       t.typeId, t.typeName, t.capacityRange, " +
+                     "       u.fullName AS ownerName, u.identityCard AS ownerIdentity, u.phone AS ownerPhone, " +
+                     "       u.email AS ownerEmail, u.address AS ownerAddress, " +
+                     "       d.provinceName, d.districtName, d.platePrefix, " +
+                     "       lp.plateNumber, lp.fullPlate, lp.status AS plateStatus, lp.assignedAt, " +
+                     "       o.fullName AS officerName " +
+                     "FROM dbo.REGISTRATIONS r " +
+                     "JOIN dbo.VEHICLES v ON r.vehicleId = v.vehicleId " +
+                     "JOIN dbo.USERS u ON r.ownerId = u.userId " +
+                     "JOIN dbo.DISTRICTS d ON r.districtId = d.districtId " +
+                     "JOIN dbo.VEHICLE_BRANDS b ON v.brandId = b.brandId " +
+                     "JOIN dbo.VEHICLE_TYPES t ON v.typeId = t.typeId " +
+                     "LEFT JOIN dbo.LICENSE_PLATES lp ON r.plateId = lp.plateId " +
+                     "LEFT JOIN dbo.USERS o ON r.officerId = o.userId " +
+                     "WHERE r.registrationId = ? AND r.ownerId = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, registrationId);
+            ps.setInt(2, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Registration reg = new Registration();
+                    reg.setRegistrationId(rs.getInt("registrationId"));
+                    reg.setVehicleId(rs.getInt("vehicleId"));
+                    reg.setOwnerId(rs.getInt("ownerId"));
+                    reg.setDistrictId(rs.getInt("districtId"));
+
+                    int pId = rs.getInt("plateId");
+                    reg.setPlateId(rs.wasNull() ? null : pId);
+
+                    int offId = rs.getInt("officerId");
+                    reg.setOfficerId(rs.wasNull() ? null : offId);
+
+                    reg.setDrawCode(rs.getString("drawCode"));
+                    reg.setFeeAmount(rs.getBigDecimal("feeAmount"));
+                    reg.setStatus(rs.getString("status"));
+                    reg.setRejectionReason(rs.getString("rejectionReason"));
+                    reg.setSubmittedAt(rs.getTimestamp("submittedAt"));
+                    reg.setApprovedAt(rs.getTimestamp("approvedAt"));
+                    reg.setDrawnAt(rs.getTimestamp("drawnAt"));
+
+                    // Gán Chủ xe (User)
+                    User owner = new User();
+                    owner.setUserId(reg.getOwnerId());
+                    owner.setFullName(rs.getString("ownerName"));
+                    owner.setIdentityCard(rs.getString("ownerIdentity"));
+                    owner.setPhone(rs.getString("ownerPhone"));
+                    owner.setEmail(rs.getString("ownerEmail"));
+                    owner.setAddress(rs.getString("ownerAddress"));
+                    reg.setOwner(owner);
+
+                    // Gán Xe (Vehicle)
+                    Vehicle v = new Vehicle();
+                    v.setVehicleId(reg.getVehicleId());
+                    v.setOwnerId(reg.getOwnerId());
+                    v.setModelName(rs.getString("modelName"));
+                    v.setEngineNumber(rs.getString("engineNumber"));
+                    v.setChassisNumber(rs.getString("chassisNumber"));
+                    v.setColor(rs.getString("color"));
+                    v.setEngineCapacity(rs.getInt("engineCapacity"));
+                    v.setVehicleValue(rs.getBigDecimal("vehicleValue"));
+                    v.setTaxReceiptNumber(rs.getString("taxReceiptNumber"));
+                    v.setInvoiceNumber(rs.getString("invoiceNumber"));
+                    v.setCreateAt(rs.getTimestamp("vehicleCreateAt"));
+
+                    VehicleBrand brand = new VehicleBrand(rs.getInt("brandId"), rs.getString("brandName"));
+                    v.setBrand(brand);
+                    VehicleType type = new VehicleType(rs.getInt("typeId"), rs.getString("typeName"), rs.getString("capacityRange"));
+                    v.setType(type);
+                    reg.setVehicle(v);
+
+                    District dist = new District(reg.getDistrictId(), rs.getString("provinceName"), 
+                                                 rs.getString("districtName"), rs.getString("platePrefix"));
+                    reg.setDistrict(dist);
+
+                    return reg;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RegistrationDAO.class.getName()).log(Level.SEVERE, "Lỗi lấy chi tiết hồ sơ công dân #" + registrationId, ex);
+        }
+        return null;
+    }
+
+    /**
      * Tự động sinh mã bấm biển ngẫu nhiên duy nhất (DRAW-XXXXXX - FR-07)
      */
     public String generateUniqueDrawCode() {
@@ -584,7 +682,7 @@ public class RegistrationDAO extends DBContext {
             // Kiểm tra trạng thái hồ sơ (BR-03 & BR-04)
             if ("DRAWN".equalsIgnoreCase(status) || plateId != null) {
                 connection.rollback();
-                throw new Exception("Hồ sơ này đã được bấm biển số thành công từ trước (BR-04: Dữ liệu bất biến)!");
+                throw new Exception("Hồ sơ này đã được bấm biển số thành công từ trước (Dữ liệu định danh bất biến)!");
             }
 
             if (!"APPROVED".equalsIgnoreCase(status)) {

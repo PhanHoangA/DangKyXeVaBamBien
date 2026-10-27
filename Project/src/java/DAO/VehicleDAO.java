@@ -210,4 +210,127 @@ public class VehicleDAO extends DBContext {
             }
         }
     }
+
+    /**
+     * FR-04: Chỉnh sửa và nộp lại hồ sơ bị từ chối (Resubmit Rejected Registration)
+     * Thực hiện UPDATE trực tiếp trên xe cũ và cập nhật hồ sơ về PENDING trong 1 JDBC Transaction,
+     * không tạo bản ghi mới để không vi phạm ràng buộc UNIQUE của số khung/số máy.
+     * 
+     * @param vehicle Đối tượng thông tin phương tiện đã chỉnh sửa
+     * @param registrationId Mã hồ sơ đăng ký bị từ chối
+     * @param ownerId Mã chủ phương tiện (chống can thiệp chéo)
+     * @return true nếu cập nhật thành công
+     * @throws SQLException Nếu có lỗi CSDL hoặc vi phạm nghiệp vụ
+     */
+    public boolean resubmitRejectedRegistration(Vehicle vehicle, int registrationId, int ownerId) throws SQLException {
+        if (connection == null) {
+            throw new SQLException("Kết nối cơ sở dữ liệu không khả dụng!");
+        }
+
+        // 1. Kiểm tra hồ sơ có tồn tại, thuộc quyền sở hữu của ownerId và đang ở trạng thái REJECTED không
+        String checkRegSql = "SELECT vehicleId, status FROM dbo.REGISTRATIONS WHERE registrationId = ? AND ownerId = ?";
+        int existingVehicleId = -1;
+        try (PreparedStatement psCheck = connection.prepareStatement(checkRegSql)) {
+            psCheck.setInt(1, registrationId);
+            psCheck.setInt(2, ownerId);
+            try (ResultSet rs = psCheck.executeQuery()) {
+                if (rs.next()) {
+                    String status = rs.getString("status");
+                    if (!"REJECTED".equalsIgnoreCase(status)) {
+                        throw new SQLException("Chỉ hồ sơ bị Từ chối mới được phép chỉnh sửa và nộp lại!");
+                    }
+                    existingVehicleId = rs.getInt("vehicleId");
+                } else {
+                    throw new SQLException("Hồ sơ #" + registrationId + " không tồn tại hoặc không thuộc quyền sở hữu của bạn!");
+                }
+            }
+        }
+
+        // 2. Nếu số khung hoặc số máy thay đổi, kiểm tra xem có bị trùng với xe KHÁC (xe khác existingVehicleId) không
+        String checkOtherChassisSql = "SELECT COUNT(*) FROM dbo.VEHICLES WHERE UPPER(LTRIM(RTRIM(chassisNumber))) = UPPER(?) AND vehicleId <> ?";
+        try (PreparedStatement ps = connection.prepareStatement(checkOtherChassisSql)) {
+            ps.setString(1, vehicle.getChassisNumber().trim());
+            ps.setInt(2, existingVehicleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new SQLException("Số khung '" + vehicle.getChassisNumber().trim() + "' đã được sử dụng bởi phương tiện khác!");
+                }
+            }
+        }
+
+        String checkOtherEngineSql = "SELECT COUNT(*) FROM dbo.VEHICLES WHERE UPPER(LTRIM(RTRIM(engineNumber))) = UPPER(?) AND vehicleId <> ?";
+        try (PreparedStatement ps = connection.prepareStatement(checkOtherEngineSql)) {
+            ps.setString(1, vehicle.getEngineNumber().trim());
+            ps.setInt(2, existingVehicleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    throw new SQLException("Số máy '" + vehicle.getEngineNumber().trim() + "' đã được sử dụng bởi phương tiện khác!");
+                }
+            }
+        }
+
+        boolean originalAutoCommit = connection.getAutoCommit();
+        String updateVehicleSql = "UPDATE dbo.VEHICLES SET " +
+                "brandId = ?, typeId = ?, modelName = ?, engineNumber = ?, chassisNumber = ?, " +
+                "color = ?, engineCapacity = ?, vehicleValue = ?, taxReceiptNumber = ?, invoiceNumber = ? " +
+                "WHERE vehicleId = ?";
+
+        String updateRegSql = "UPDATE dbo.REGISTRATIONS SET " +
+                "status = 'PENDING', rejectionReason = NULL, submittedAt = GETDATE() " +
+                "WHERE registrationId = ? AND ownerId = ?";
+
+        try {
+            connection.setAutoCommit(false);
+
+            // Cập nhật lại thông tin xe hiện có
+            try (PreparedStatement psV = connection.prepareStatement(updateVehicleSql)) {
+                psV.setInt(1, vehicle.getBrandId());
+                psV.setInt(2, vehicle.getTypeId());
+                psV.setString(3, vehicle.getModelName().trim());
+                psV.setString(4, vehicle.getEngineNumber().trim().toUpperCase());
+                psV.setString(5, vehicle.getChassisNumber().trim().toUpperCase());
+                psV.setString(6, vehicle.getColor().trim());
+                psV.setInt(7, vehicle.getEngineCapacity());
+                psV.setBigDecimal(8, vehicle.getVehicleValue());
+                psV.setString(9, vehicle.getTaxReceiptNumber().trim().toUpperCase());
+                psV.setString(10, vehicle.getInvoiceNumber().trim().toUpperCase());
+                psV.setInt(11, existingVehicleId);
+
+                int vAffected = psV.executeUpdate();
+                if (vAffected == 0) {
+                    connection.rollback();
+                    throw new SQLException("Không thể cập nhật thông tin phương tiện #" + existingVehicleId);
+                }
+            }
+
+            // Đưa hồ sơ về trạng thái PENDING và xóa lý do từ chối
+            try (PreparedStatement psR = connection.prepareStatement(updateRegSql)) {
+                psR.setInt(1, registrationId);
+                psR.setInt(2, ownerId);
+
+                int rAffected = psR.executeUpdate();
+                if (rAffected == 0) {
+                    connection.rollback();
+                    throw new SQLException("Không thể đặt lại trạng thái hồ sơ #" + registrationId);
+                }
+            }
+
+            connection.commit();
+            return true;
+
+        } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException rEx) {
+                Logger.getLogger(VehicleDAO.class.getName()).log(Level.SEVERE, "Lỗi Rollback Resubmit", rEx);
+            }
+            throw ex;
+        } finally {
+            try {
+                connection.setAutoCommit(originalAutoCommit);
+            } catch (SQLException acEx) {
+                Logger.getLogger(VehicleDAO.class.getName()).log(Level.WARNING, "Lỗi khôi phục autoCommit", acEx);
+            }
+        }
+    }
 }

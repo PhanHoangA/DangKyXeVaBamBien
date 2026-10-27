@@ -401,7 +401,7 @@ public class LicensePlateDAO extends DBContext {
                     // Ràng buộc BR-04 & FR-10: Tuyệt đối không thay đổi biển đã cấp
                     if (LicensePlate.STATUS_ASSIGNED.equalsIgnoreCase(currentStatus)) {
                         throw new Exception("Biển số [" + fullPlate
-                                + "] đã được cấp định danh cho công dân (ASSIGNED). Quy tắc BR-04 nghiêm cấm thay đổi trạng thái!");
+                                + "] đã được cấp định danh cho công dân (ASSIGNED). Hệ thống nghiêm cấm thay đổi trạng thái!");
                     }
                 } else {
                     throw new Exception("Không tìm thấy biển số ID #" + plateId);

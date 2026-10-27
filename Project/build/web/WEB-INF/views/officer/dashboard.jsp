@@ -233,7 +233,7 @@
             <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="badge bg-warning text-dark fw-bold px-2 py-1" style="font-size: 0.72rem;">
-                        <i class="fa-solid fa-scale-balanced me-1"></i> ĐỊA BÀN THẨM ĐỊNH (BR-01)
+                        <i class="fa-solid fa-scale-balanced me-1"></i> ĐỊA BÀN THẨM ĐỊNH
                     </span>
                     <span class="text-white-50 small">Hệ thống cấp biển số xe máy định danh</span>
                 </div>
@@ -392,7 +392,7 @@
                                 <th>Thông Tin Xe & Đăng Ký</th>
                                 <th style="width: 140px;">Trạng Thái</th>
                                 <th style="width: 180px;">Mã Bấm Biển / Biển Số</th>
-                                <th style="width: 320px;" class="pe-3">Thẩm Định & Cấp Mã (FR-07 / FR-08)</th>
+                                <th style="width: 320px;" class="pe-3">Thẩm Định & Cấp Mã</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -581,7 +581,7 @@
                                                     <c:when test="${reg.status eq 'DRAWN'}">
                                                         <div class="p-2 rounded bg-light border border-success border-opacity-25 text-muted" style="font-size: 0.76rem;">
                                                             <i class="fa-solid fa-lock text-success me-1"></i>
-                                                            (BR-04) Đã hoàn tất cấp biển số <strong><c:out value="${reg.plate.fullPlate}" /></strong>. Dữ liệu bất biến vĩnh viễn trên hệ thống.
+                                                            Đã hoàn tất cấp biển số <strong><c:out value="${reg.plate.fullPlate}" /></strong>. Dữ liệu định danh bất biến trên hệ thống.
                                                         </div>
                                                     </c:when>
 

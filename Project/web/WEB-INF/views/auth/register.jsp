@@ -529,7 +529,7 @@
             <div class="portal-title-block text-start">
                 <h4>Bộ Công An &bull; Cục Cảnh Sát Giao Thông</h4>
                 <h1>Hệ Thống Đăng Ký & Bấm Biển Số Xe Trực Tuyến</h1>
-                <div class="portal-subtitle">Cổng đăng ký tài khoản công dân (FR-01) phục vụ thủ tục phương tiện</div>
+                <div class="portal-subtitle">Cổng đăng ký tài khoản công dân phục vụ thủ tục phương tiện</div>
             </div>
         </header>
 
@@ -548,7 +548,7 @@
                     </p>
 
                     <div class="notice-card">
-                        <h5><i class="fa-solid fa-circle-info"></i> Quy Định Bắt Buộc (FR-01)</h5>
+                        <h5><i class="fa-solid fa-circle-info"></i> Quy Định Bắt Buộc</h5>
                         <ul>
                             <li><strong>Số CCCD:</strong> Đúng chuẩn 12 chữ số theo Căn cước công dân gắn chip.</li>
                             <li><strong>Quận/Huyện thường trú:</strong> Biển số xe mô tô sẽ được hệ thống tự động cấp theo đầu số mã vùng của Quận/Huyện này.</li>

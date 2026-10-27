@@ -187,7 +187,7 @@
             </div>
 
             <a href="${pageContext.request.contextPath}/user/vehicle-form" class="btn btn-danger fw-bold shadow-sm">
-                <i class="fa-solid fa-plus me-1"></i> Khai Báo Xe Mới (FR-03)
+                <i class="fa-solid fa-plus me-1"></i> Khai Báo Xe Mới
             </a>
         </div>
 
@@ -285,8 +285,15 @@
                                                         <span class="text-muted small fst-italic">Đang chờ CSGT duyệt</span>
                                                     </c:when>
 
+                                                    <c:when test="${reg.status eq 'REJECTED'}">
+                                                        <a href="${pageContext.request.contextPath}/user/vehicle-form?registrationId=${reg.registrationId}" 
+                                                           class="btn btn-danger btn-sm fw-bold w-100 mt-1 shadow-sm" style="font-size: 0.75rem;">
+                                                            <i class="fa-solid fa-pen-to-square me-1"></i> Sửa &amp; Nộp Lại
+                                                        </a>
+                                                    </c:when>
+
                                                     <c:otherwise>
-                                                        <span class="text-muted small fst-italic">Cần nộp lại</span>
+                                                        <span class="text-muted small fst-italic">Hồ sơ đã đóng</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>

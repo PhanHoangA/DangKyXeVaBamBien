@@ -252,7 +252,7 @@
                     <div class="stat-count text-primary mt-2">
                         <fmt:formatNumber value="${not empty plateStats['ASSIGNED'] ? plateStats['ASSIGNED'] : 0}" type="number" />
                     </div>
-                    <div class="text-muted small mt-1">(BR-04) Đã cấp bất biến</div>
+                    <div class="text-muted small mt-1">Đã cấp định danh vĩnh viễn</div>
                 </div>
             </div>
 
@@ -303,7 +303,7 @@
                 <div class="card border-0 shadow-sm h-100 p-4">
                     <div class="section-header">
                         <i class="fa-solid fa-gears fs-5"></i>
-                        <span>Khởi Tạo Kho Biển Số Hàng Loạt (FR-09)</span>
+                        <span>Khởi Tạo Kho Biển Số Hàng Loạt</span>
                     </div>
 
                     <p class="text-muted small mb-3">
@@ -381,7 +381,7 @@
                     <div class="section-header justify-content-between">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-table-list fs-5"></i>
-                            <span>Danh Sách Kho Biển Số Toàn Quốc (FR-10)</span>
+                            <span>Danh Sách Kho Biển Số Toàn Quốc</span>
                         </div>
                         <span class="badge bg-light text-dark border">
                             Hiển thị: <strong><c:out value="${plates.size()}" default="0" /></strong> biển số
@@ -441,7 +441,7 @@
                                     <th>Biển Số Xe</th>
                                     <th>Địa Bàn Áp Dụng</th>
                                     <th style="width: 140px;">Trạng Thái</th>
-                                    <th style="width: 160px;" class="text-end pe-3">Thao Tác (FR-10)</th>
+                                    <th style="width: 160px;" class="text-end pe-3">Thao Tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -538,7 +538,7 @@
                                                         <%-- BIỂN SỐ ĐÃ CẤP CHO DÂN -> NGHIÊM CẤM THAY ĐỔI (BR-04) --%>
                                                         <c:otherwise>
                                                             <span class="text-muted small fst-italic" style="font-size: 0.72rem;">
-                                                                <i class="fa-solid fa-shield text-primary me-1"></i> Bất biến (BR-04)
+                                                                <i class="fa-solid fa-shield text-primary me-1"></i> Đã cấp định danh
                                                             </span>
                                                         </c:otherwise>
 

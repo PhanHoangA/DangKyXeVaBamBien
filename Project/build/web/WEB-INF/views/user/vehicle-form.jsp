@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khai Báo Phương Tiện & Nộp Hồ Sơ Đăng Ký Mới - Chuẩn VNeID (FR-03)</title>
+    <title>Khai Báo Phương Tiện & Nộp Hồ Sơ Đăng Ký Mới - Chuẩn VNeID</title>
     <!-- Google Fonts: Be Vietnam Pro & Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -222,9 +222,33 @@
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb small">
                 <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/home.jsp" class="text-danger text-decoration-none">Trang chủ</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Khai báo phương tiện mới (FR-03)</li>
+                <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/user/dashboard" class="text-danger text-decoration-none">Hồ sơ phương tiện</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <c:choose>
+                        <c:when test="${not empty editRegistration}">Chỉnh sửa &amp; Nộp lại hồ sơ #${editRegistration.registrationId}</c:when>
+                        <c:otherwise>Khai báo phương tiện mới</c:otherwise>
+                    </c:choose>
+                </li>
             </ol>
         </nav>
+
+        <!-- THÔNG BÁO LÝ DO TỪ CHỐI (NẾU LÀ LUỒNG NỘP LẠI HỒ SƠ FR-04) -->
+        <c:if test="${not empty editRegistration}">
+            <div class="alert alert-danger border-start border-danger border-4 shadow-sm mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fa-solid fa-triangle-exclamation text-danger fs-4"></i>
+                    <h6 class="mb-0 fw-bold text-danger">HỒ SƠ BỊ CẢNH SÁT GIAO THÔNG TỪ CHỐI (MÃ HỒ SƠ: #${editRegistration.registrationId})</h6>
+                </div>
+                <div class="p-3 bg-light rounded border mb-2">
+                    <div class="text-secondary small fw-semibold text-uppercase">Lý do từ chối thẩm định:</div>
+                    <div class="text-danger fw-bold fs-6 mt-1"><c:out value="${editRegistration.rejectionReason}" /></div>
+                </div>
+                <div class="small text-muted">
+                    <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                    Vui lòng kiểm tra và hiệu chỉnh lại thông tin sai lệch theo yêu cầu của CSGT. Hệ thống sẽ cập nhật trực tiếp vào hồ sơ hiện tại và chuyển trạng thái về <strong>Đang chờ duyệt</strong> mà không tạo thêm hồ sơ mới.
+                </div>
+            </div>
+        </c:if>
 
         <!-- THÔNG BÁO LỖI NẾU CÓ (THUẦN JSTL) -->
         <c:if test="${not empty errorMessage}">
@@ -276,6 +300,9 @@
 
         <!-- FORM KHAI BÁO PHƯƠNG TIỆN (FORM POST THUẦN TÚY KHÔNG JS) -->
         <form action="${pageContext.request.contextPath}/user/vehicle-form" method="POST">
+            <c:if test="${not empty paramRegistrationId}">
+                <input type="hidden" name="registrationId" value="${paramRegistrationId}" />
+            </c:if>
 
             <!-- PHẦN 1: HÃNG XE VÀ DÒNG XE -->
             <div class="form-card">
@@ -335,7 +362,7 @@
                 <div class="alert alert-info border-0 py-2 small d-flex align-items-center gap-2 mb-3">
                     <i class="fa-solid fa-circle-info text-primary fs-5"></i>
                     <div>
-                        <strong>Lưu ý quan trọng (BR-02):</strong> Số máy và Số khung của xe phải trùng khớp tuyệt đối với Phiếu kiểm tra chất lượng xuất xưởng. Hệ thống sẽ từ chối nếu số khung/số máy đã tồn tại.
+                        <strong>Lưu ý quan trọng:</strong> Số máy và Số khung của xe phải trùng khớp tuyệt đối với Phiếu kiểm tra chất lượng xuất xưởng. Hệ thống sẽ từ chối nếu số khung/số máy đã tồn tại.
                     </div>
                 </div>
 
@@ -392,7 +419,7 @@
                                    required>
                             <span class="input-group-text bg-light text-muted">cm³ (cc)</span>
                         </div>
-                        <div class="form-text text-muted small">Quy tắc BR-05: Dung tích &ge; 0 (Bằng 0 đối với xe máy điện).</div>
+                        <div class="form-text text-muted small">Quy định: Dung tích &ge; 0 (Bằng 0 đối với xe máy điện).</div>
                     </div>
                 </div>
             </div>
@@ -419,7 +446,7 @@
                                    required>
                             <span class="input-group-text bg-light text-muted">VNĐ</span>
                         </div>
-                        <div class="form-text text-muted small">Quy tắc BR-05: Giá trị xe phải lớn hơn 0 VNĐ.</div>
+                        <div class="form-text text-muted small">Quy định: Giá trị xe phải lớn hơn 0 VNĐ.</div>
                     </div>
 
                     <!-- Số biên lai thuế trước bạ -->
@@ -464,9 +491,18 @@
                         <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
                     </a>
 
-                    <button type="submit" class="btn btn-vneid-primary px-4 py-2.5">
-                        <i class="fa-solid fa-paper-plane me-2 text-warning"></i> Nộp Hồ Sơ Đăng Ký Phương Tiện
-                    </button>
+                    <c:choose>
+                        <c:when test="${not empty paramRegistrationId}">
+                            <button type="submit" class="btn btn-danger px-4 py-2.5 fw-bold shadow">
+                                <i class="fa-solid fa-arrows-rotate me-2 text-warning"></i> Cập Nhật &amp; Nộp Lại Hồ Sơ #${paramRegistrationId}
+                            </button>
+                        </c:when>
+                        <c:otherwise>
+                            <button type="submit" class="btn btn-vneid-primary px-4 py-2.5">
+                                <i class="fa-solid fa-paper-plane me-2 text-warning"></i> Nộp Hồ Sơ Đăng Ký Phương Tiện
+                            </button>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
 

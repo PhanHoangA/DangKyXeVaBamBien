@@ -1,6 +1,8 @@
 package Controller;
 
+import DAO.RegistrationDAO;
 import DAO.VehicleDAO;
+import Models.Registration;
 import Models.User;
 import Models.Vehicle;
 import Models.VehicleBrand;
@@ -46,6 +48,37 @@ public class VehicleFormController extends HttpServlet {
             request.setAttribute("brands", brands);
             request.setAttribute("types", types);
 
+            // FR-04: Kiểm tra nếu là luồng nộp lại hồ sơ bị từ chối
+            String regIdStr = request.getParameter("registrationId");
+            if (regIdStr != null && !regIdStr.trim().isEmpty()) {
+                try {
+                    int regId = Integer.parseInt(regIdStr.trim());
+                    RegistrationDAO regDAO = new RegistrationDAO();
+                    Registration editReg = regDAO.getUserRegistrationById(regId, currentUser.getUserId());
+                    if (editReg != null && "REJECTED".equalsIgnoreCase(editReg.getStatus())) {
+                        request.setAttribute("editRegistration", editReg);
+                        request.setAttribute("paramRegistrationId", editReg.getRegistrationId());
+
+                        if (editReg.getVehicle() != null) {
+                            Vehicle v = editReg.getVehicle();
+                            request.setAttribute("paramBrandId", v.getBrandId());
+                            request.setAttribute("paramTypeId", v.getTypeId());
+                            request.setAttribute("paramModelName", v.getModelName());
+                            request.setAttribute("paramEngineNumber", v.getEngineNumber());
+                            request.setAttribute("paramChassisNumber", v.getChassisNumber());
+                            request.setAttribute("paramColor", v.getColor());
+                            request.setAttribute("paramEngineCapacity", String.valueOf(v.getEngineCapacity()));
+                            if (v.getVehicleValue() != null) {
+                                request.setAttribute("paramVehicleValue", v.getVehicleValue().toPlainString());
+                            }
+                            request.setAttribute("paramTaxReceiptNumber", v.getTaxReceiptNumber());
+                            request.setAttribute("paramInvoiceNumber", v.getInvoiceNumber());
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
             // Forward tới giao diện khai báo xe chuẩn VNeID trong WEB-INF/views/user/
             request.getRequestDispatcher("/WEB-INF/views/user/vehicle-form.jsp").forward(request, response);
 
@@ -81,6 +114,15 @@ public class VehicleFormController extends HttpServlet {
         String vehicleValueStr = request.getParameter("vehicleValue");
         String taxReceiptNumber = request.getParameter("taxReceiptNumber");
         String invoiceNumber = request.getParameter("invoiceNumber");
+        String regIdStr = request.getParameter("registrationId");
+        int resubmitRegId = -1;
+        if (regIdStr != null && !regIdStr.trim().isEmpty()) {
+            try {
+                resubmitRegId = Integer.parseInt(regIdStr.trim());
+                request.setAttribute("paramRegistrationId", resubmitRegId);
+            } catch (NumberFormatException ignored) {
+            }
+        }
 
         // Giữ lại giá trị người dùng đã nhập để điền lại form nếu có lỗi
         request.setAttribute("paramBrandId", brandIdStr);
@@ -151,18 +193,7 @@ public class VehicleFormController extends HttpServlet {
         try {
             VehicleDAO vehicleDAO = new VehicleDAO();
 
-            // 4. Kiểm tra quy tắc duy nhất (BR-02: engineNumber & chassisNumber duy nhất toàn hệ thống)
-            if (vehicleDAO.isEngineNumberExists(engineNumber)) {
-                forwardWithError(request, response, "Số máy '" + engineNumber.trim() + "' đã tồn tại trên hệ thống dữ liệu đăng ký phương tiện!");
-                return;
-            }
-
-            if (vehicleDAO.isChassisNumberExists(chassisNumber)) {
-                forwardWithError(request, response, "Số khung '" + chassisNumber.trim() + "' đã tồn tại trên hệ thống dữ liệu đăng ký phương tiện!");
-                return;
-            }
-
-            // 5. Khởi tạo đối tượng Vehicle
+            // Khởi tạo đối tượng Vehicle
             Vehicle vehicle = new Vehicle();
             vehicle.setOwnerId(currentUser.getUserId());
             vehicle.setBrandId(brandId);
@@ -176,25 +207,54 @@ public class VehicleFormController extends HttpServlet {
             vehicle.setTaxReceiptNumber(taxReceiptNumber.trim().toUpperCase());
             vehicle.setInvoiceNumber(invoiceNumber.trim().toUpperCase());
 
-            // 6. Thực thi JDBC Transaction (FR-03)
-            int districtId = currentUser.getDistrictId(); // Biển số được cấp theo Quận thường trú của chủ xe (BR-01)
-            int registrationId = vehicleDAO.registerNewVehicle(vehicle, districtId);
-
-            if (registrationId > 0) {
-                // Đăng ký thành công -> Gửi Flash Message vào Session và chuyển hướng
-                session.setAttribute("flashSuccessMessage", 
-                    "Khai báo phương tiện thành công! Hồ sơ #" + registrationId + " (" + modelName.trim() + ") " +
-                    "đã được chuyển tới Công An " + currentUser.getDistrict().getDistrictName() + " thẩm định.");
-                
-                response.sendRedirect(request.getContextPath() + "/home.jsp");
+            if (resubmitRegId > 0) {
+                // FR-04: Luồng nộp lại hồ sơ bị từ chối
+                boolean updated = vehicleDAO.resubmitRejectedRegistration(vehicle, resubmitRegId, currentUser.getUserId());
+                if (updated) {
+                    session.setAttribute("flashSuccessMessage", 
+                        "Chỉnh sửa và nộp lại hồ sơ #" + resubmitRegId + " (" + modelName.trim() + ") thành công! " +
+                        "Hồ sơ đã được chuyển lại cho Cán bộ CSGT thẩm định.");
+                    response.sendRedirect(request.getContextPath() + "/user/dashboard");
+                    return;
+                } else {
+                    forwardWithError(request, response, "Không thể cập nhật hồ sơ đăng ký. Vui lòng kiểm tra lại dữ liệu và thử lại!");
+                    return;
+                }
             } else {
-                forwardWithError(request, response, "Không thể lưu hồ sơ đăng ký. Vui lòng kiểm tra lại dữ liệu và thử lại!");
+                // 4. Kiểm tra quy tắc duy nhất cho xe mới (BR-02: engineNumber & chassisNumber duy nhất toàn hệ thống)
+                if (vehicleDAO.isEngineNumberExists(engineNumber)) {
+                    forwardWithError(request, response, "Số máy '" + engineNumber.trim() + "' đã tồn tại trên hệ thống dữ liệu đăng ký phương tiện!");
+                    return;
+                }
+
+                if (vehicleDAO.isChassisNumberExists(chassisNumber)) {
+                    forwardWithError(request, response, "Số khung '" + chassisNumber.trim() + "' đã tồn tại trên hệ thống dữ liệu đăng ký phương tiện!");
+                    return;
+                }
+
+                // 6. Thực thi JDBC Transaction (FR-03)
+                int districtId = currentUser.getDistrictId(); // Biển số được cấp theo Quận thường trú của chủ xe (BR-01)
+                int registrationId = vehicleDAO.registerNewVehicle(vehicle, districtId);
+
+                if (registrationId > 0) {
+                    // Đăng ký thành công -> Gửi Flash Message vào Session và chuyển hướng về danh sách hồ sơ
+                    String districtName = (currentUser.getDistrict() != null) ? currentUser.getDistrict().getDistrictName() : "";
+                    session.setAttribute("flashSuccessMessage", 
+                        "Khai báo phương tiện thành công! Hồ sơ #" + registrationId + " (" + modelName.trim() + ") " +
+                        "đã được chuyển tới Công An " + districtName + " thẩm định.");
+                    
+                    response.sendRedirect(request.getContextPath() + "/user/dashboard");
+                    return;
+                } else {
+                    forwardWithError(request, response, "Không thể lưu hồ sơ đăng ký. Vui lòng kiểm tra lại dữ liệu và thử lại!");
+                    return;
+                }
             }
 
         } catch (ClassNotFoundException ex) {
             forwardWithError(request, response, "Lỗi kết nối cơ sở dữ liệu: Không tìm thấy JDBC Driver!");
         } catch (SQLException ex) {
-            forwardWithError(request, response, "Lỗi cơ sở dữ liệu khi lưu hồ sơ: " + ex.getMessage());
+            forwardWithError(request, response, "Lỗi cơ sở dữ liệu: " + ex.getMessage());
         }
     }
 
@@ -207,7 +267,20 @@ public class VehicleFormController extends HttpServlet {
             VehicleDAO dao = new VehicleDAO();
             request.setAttribute("brands", dao.getAllBrands());
             request.setAttribute("types", dao.getAllTypes());
-        } catch (ClassNotFoundException ignored) {
+
+            Object regIdObj = request.getAttribute("paramRegistrationId");
+            if (regIdObj != null) {
+                HttpSession session = request.getSession(false);
+                User currentUser = (session != null) ? (User) session.getAttribute("currentUser") : null;
+                if (currentUser != null) {
+                    RegistrationDAO regDAO = new RegistrationDAO();
+                    Registration editReg = regDAO.getUserRegistrationById((Integer) regIdObj, currentUser.getUserId());
+                    if (editReg != null) {
+                        request.setAttribute("editRegistration", editReg);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
         }
         request.setAttribute("errorMessage", message);
         request.getRequestDispatcher("/WEB-INF/views/user/vehicle-form.jsp").forward(request, response);

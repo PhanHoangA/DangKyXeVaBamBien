@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phòng Bấm Biển Số Xe Máy Ngẫu Nhiên - Chuẩn VNeID (FR-05)</title>
+    <title>Phòng Bấm Biển Số Xe Máy Ngẫu Nhiên - Chuẩn VNeID</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -221,7 +221,7 @@
             <ol class="breadcrumb small">
                 <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/home.jsp" class="text-danger text-decoration-none">Trang chủ</a></li>
                 <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/user/dashboard" class="text-danger text-decoration-none">Hồ sơ của bạn</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Bấm biển số ngẫu nhiên (FR-05)</li>
+                <li class="breadcrumb-item active" aria-current="page">Bấm biển số ngẫu nhiên</li>
             </ol>
         </nav>
 
@@ -276,7 +276,7 @@
                 </div>
 
                 <div class="text-white-50 small mb-4">
-                    <i class="fa-solid fa-lock text-warning me-1"></i> (BR-04) Biển số này có giá trị định danh vĩnh viễn với tài khoản của bạn, không thể thu hồi hoặc bấm lại.
+                    <i class="fa-solid fa-lock text-warning me-1"></i> Biển số này có giá trị định danh vĩnh viễn với tài khoản của bạn, không thể thu hồi hoặc bấm lại.
                 </div>
 
                 <div class="d-flex justify-content-center gap-3">
