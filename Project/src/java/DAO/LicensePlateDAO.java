@@ -30,14 +30,13 @@ public class LicensePlateDAO extends DBContext {
 
         String sql = "SELECT districtId, provinceName, districtName, platePrefix FROM dbo.DISTRICTS ORDER BY provinceName, districtName";
         try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new District(
-                    rs.getInt("districtId"),
-                    rs.getString("provinceName"),
-                    rs.getString("districtName"),
-                    rs.getString("platePrefix")
-                ));
+                        rs.getInt("districtId"),
+                        rs.getString("provinceName"),
+                        rs.getString("districtName"),
+                        rs.getString("platePrefix")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(LicensePlateDAO.class.getName()).log(Level.SEVERE, "Lỗi lấy danh mục Quận/Huyện", ex);
@@ -58,11 +57,10 @@ public class LicensePlateDAO extends DBContext {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new District(
-                        rs.getInt("districtId"),
-                        rs.getString("provinceName"),
-                        rs.getString("districtName"),
-                        rs.getString("platePrefix")
-                    );
+                            rs.getInt("districtId"),
+                            rs.getString("provinceName"),
+                            rs.getString("districtName"),
+                            rs.getString("platePrefix"));
                 }
             }
         } catch (SQLException ex) {
@@ -86,8 +84,7 @@ public class LicensePlateDAO extends DBContext {
         }
 
         StringBuilder sql = new StringBuilder(
-            "SELECT status, COUNT(*) AS countNum FROM dbo.LICENSE_PLATES "
-        );
+                "SELECT status, COUNT(*) AS countNum FROM dbo.LICENSE_PLATES ");
         if (districtId > 0) {
             sql.append("WHERE districtId = ? ");
         }
@@ -137,7 +134,7 @@ public class LicensePlateDAO extends DBContext {
             // Đếm người dùng theo vai trò
             String userSql = "SELECT r.roleName, COUNT(*) AS total FROM dbo.USERS u JOIN dbo.ROLES r ON u.roleId = r.roleId GROUP BY r.roleName";
             try (PreparedStatement ps = connection.prepareStatement(userSql);
-                 ResultSet rs = ps.executeQuery()) {
+                    ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String role = rs.getString("roleName");
                     int c = rs.getInt("total");
@@ -152,7 +149,7 @@ public class LicensePlateDAO extends DBContext {
             // Đếm phương tiện
             String vehSql = "SELECT COUNT(*) FROM dbo.VEHICLES";
             try (PreparedStatement ps = connection.prepareStatement(vehSql);
-                 ResultSet rs = ps.executeQuery()) {
+                    ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     stats.put("TOTAL_VEHICLES", rs.getInt(1));
                 }
@@ -161,22 +158,27 @@ public class LicensePlateDAO extends DBContext {
             // Đếm hồ sơ theo trạng thái
             String regSql = "SELECT status, COUNT(*) AS total FROM dbo.REGISTRATIONS GROUP BY status";
             try (PreparedStatement ps = connection.prepareStatement(regSql);
-                 ResultSet rs = ps.executeQuery()) {
+                    ResultSet rs = ps.executeQuery()) {
                 int totalReg = 0;
                 while (rs.next()) {
                     String st = rs.getString("status");
                     int c = rs.getInt("total");
                     totalReg += c;
-                    if ("PENDING".equalsIgnoreCase(st)) stats.put("REG_PENDING", c);
-                    else if ("APPROVED".equalsIgnoreCase(st)) stats.put("REG_APPROVED", c);
-                    else if ("DRAWN".equalsIgnoreCase(st)) stats.put("REG_DRAWN", c);
-                    else if ("REJECTED".equalsIgnoreCase(st)) stats.put("REG_REJECTED", c);
+                    if ("PENDING".equalsIgnoreCase(st))
+                        stats.put("REG_PENDING", c);
+                    else if ("APPROVED".equalsIgnoreCase(st))
+                        stats.put("REG_APPROVED", c);
+                    else if ("DRAWN".equalsIgnoreCase(st))
+                        stats.put("REG_DRAWN", c);
+                    else if ("REJECTED".equalsIgnoreCase(st))
+                        stats.put("REG_REJECTED", c);
                 }
                 stats.put("TOTAL_REGISTRATIONS", totalReg);
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(LicensePlateDAO.class.getName()).log(Level.SEVERE, "Lỗi lấy thống kê toàn cảnh hệ thống", ex);
+            Logger.getLogger(LicensePlateDAO.class.getName()).log(Level.SEVERE, "Lỗi lấy thống kê toàn cảnh hệ thống",
+                    ex);
         }
         return stats;
     }
@@ -191,12 +193,11 @@ public class LicensePlateDAO extends DBContext {
         }
 
         StringBuilder sql = new StringBuilder(
-            "SELECT TOP (?) lp.plateId, lp.districtId, lp.plateNumber, lp.fullPlate, lp.status, lp.assignedAt, " +
-            "       d.provinceName, d.districtName, d.platePrefix " +
-            "FROM dbo.LICENSE_PLATES lp " +
-            "JOIN dbo.DISTRICTS d ON lp.districtId = d.districtId " +
-            "WHERE 1=1 "
-        );
+                "SELECT TOP (?) lp.plateId, lp.districtId, lp.plateNumber, lp.fullPlate, lp.status, lp.assignedAt, " +
+                        "       d.provinceName, d.districtName, d.platePrefix " +
+                        "FROM dbo.LICENSE_PLATES lp " +
+                        "JOIN dbo.DISTRICTS d ON lp.districtId = d.districtId " +
+                        "WHERE 1=1 ");
 
         List<Object> params = new ArrayList<>();
         params.add(limit > 0 ? limit : 200);
@@ -235,11 +236,10 @@ public class LicensePlateDAO extends DBContext {
                     plate.setAssignedAt(rs.getTimestamp("assignedAt"));
 
                     District d = new District(
-                        plate.getDistrictId(),
-                        rs.getString("provinceName"),
-                        rs.getString("districtName"),
-                        rs.getString("platePrefix")
-                    );
+                            plate.getDistrictId(),
+                            rs.getString("provinceName"),
+                            rs.getString("districtName"),
+                            rs.getString("platePrefix"));
                     plate.setDistrict(d);
 
                     list.add(plate);
@@ -253,12 +253,15 @@ public class LicensePlateDAO extends DBContext {
 
     /**
      * Kiểm tra biển số đẹp (Ngũ quý, Sảnh tiến, Tứ quý) theo quy định FR-09
+     * 
      * @param plateNumber Định dạng 5 chữ số có dấu chấm (VD: "555.55", "123.45")
      */
     public boolean isSpecialPlate(String plateNumber) {
-        if (plateNumber == null) return false;
+        if (plateNumber == null)
+            return false;
         String digits = plateNumber.replace(".", "").trim();
-        if (digits.length() != 5) return false;
+        if (digits.length() != 5)
+            return false;
 
         char c0 = digits.charAt(0);
         char c1 = digits.charAt(1);
@@ -276,14 +279,16 @@ public class LicensePlateDAO extends DBContext {
             return true;
         }
 
-        // 3. Sảnh tiến (Dãy số liên tiếp tăng dần, VD: 123.45, 234.56, 345.67, 456.78, 567.89)
+        // 3. Sảnh tiến (Dãy số liên tiếp tăng dần, VD: 123.45, 234.56, 345.67, 456.78,
+        // 567.89)
         if (c1 == c0 + 1 && c2 == c1 + 1 && c3 == c2 + 1 && c4 == c3 + 1) {
             return true;
         }
 
         // 4. Lộc phát / Phát lộc kép (VD: 686.88, 868.68, 688.68)
         if (digits.endsWith("68") || digits.endsWith("86") || digits.endsWith("79") || digits.endsWith("39")) {
-            if (digits.equals("686.88") || digits.equals("868.68") || digits.equals("688.88") || digits.equals("888.68")) {
+            if (digits.equals("686.88") || digits.equals("868.68") || digits.equals("688.88")
+                    || digits.equals("888.68")) {
                 return true;
             }
         }
@@ -294,13 +299,15 @@ public class LicensePlateDAO extends DBContext {
     /**
      * FR-09: Sinh kho biển số tự động theo dải (Batch Plate Generation)
      * Sử dụng PreparedStatement.addBatch() và executeBatch()
-     * @param districtId Quận/Huyện được chọn
-     * @param startNumber Số bắt đầu (VD: 10000)
-     * @param endNumber Số kết thúc (VD: 10199)
+     * 
+     * @param districtId   Quận/Huyện được chọn
+     * @param startNumber  Số bắt đầu (VD: 10000)
+     * @param endNumber    Số kết thúc (VD: 10199)
      * @param blockSpecial Tự động khóa biển đẹp sang BLOCKED
      * @return Số lượng biển số chèn thành công
      */
-    public int batchGeneratePlates(int districtId, int startNumber, int endNumber, boolean blockSpecial) throws SQLException {
+    public int batchGeneratePlates(int districtId, int startNumber, int endNumber, boolean blockSpecial)
+            throws SQLException {
         if (connection == null) {
             throw new SQLException("Không có kết nối CSDL!");
         }
@@ -322,7 +329,7 @@ public class LicensePlateDAO extends DBContext {
             connection.setAutoCommit(false);
 
             try (PreparedStatement psCheck = connection.prepareStatement(checkSql);
-                 PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+                    PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
 
                 for (int num = startNumber; num <= endNumber; num++) {
                     String digits = String.format("%05d", num);
@@ -372,7 +379,8 @@ public class LicensePlateDAO extends DBContext {
     /**
      * FR-10: Khóa / Mở khóa biển số (Block / Unblock Plate)
      * Nghiêm cấm thay đổi trạng thái nếu biển số đã có status = 'ASSIGNED' (BR-04)
-     * @param plateId Mã biển số
+     * 
+     * @param plateId      Mã biển số
      * @param targetStatus Trạng thái đích ('AVAILABLE' hoặc 'BLOCKED')
      * @return true nếu thành công
      */
@@ -392,7 +400,8 @@ public class LicensePlateDAO extends DBContext {
 
                     // Ràng buộc BR-04 & FR-10: Tuyệt đối không thay đổi biển đã cấp
                     if (LicensePlate.STATUS_ASSIGNED.equalsIgnoreCase(currentStatus)) {
-                        throw new Exception("Biển số [" + fullPlate + "] đã được cấp định danh cho công dân (ASSIGNED). Quy tắc BR-04 nghiêm cấm thay đổi trạng thái!");
+                        throw new Exception("Biển số [" + fullPlate
+                                + "] đã được cấp định danh cho công dân (ASSIGNED). Quy tắc BR-04 nghiêm cấm thay đổi trạng thái!");
                     }
                 } else {
                     throw new Exception("Không tìm thấy biển số ID #" + plateId);

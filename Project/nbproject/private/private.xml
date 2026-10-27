@@ -2,6 +2,13 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/D:/Lab211/DangKyXeVaBamBienProject/Project/web/WEB-INF/views/user/vehicle-form.jsp</file>
+            <file>file:/D:/Lab211/DangKyXeVaBamBienProject/Project/web/admin/index.jsp</file>
+            <file>file:/D:/Lab211/DangKyXeVaBamBienProject/Project/src/java/DAL/DBContext.java</file>
+            <file>file:/D:/Lab211/DangKyXeVaBamBienProject/Project/src/java/DAO/LicensePlateDAO.java</file>
+            <file>file:/D:/Lab211/DangKyXeVaBamBienProject/Project/web/user/index.jsp</file>
+            <file>file:/D:/Lab211/DangKyXeVaBamBienProject/Project/web/officer/index.jsp</file>
+        </group>
     </open-files>
 </project-private>

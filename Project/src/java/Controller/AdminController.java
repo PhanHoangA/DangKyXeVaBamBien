@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "AdminController", urlPatterns = {"/admin/home", "/admin/dashboard", "/admin/license-plates"})
+@WebServlet(name = "AdminController", urlPatterns = { "/admin/home", "/admin/dashboard", "/admin/license-plates" })
 public class AdminController extends HttpServlet {
 
     @Override
@@ -32,7 +32,8 @@ public class AdminController extends HttpServlet {
         // 2. Kiểm tra phân quyền (Authorization - ROLE_ADMIN)
         String roleName = (currentUser.getRole() != null) ? currentUser.getRole().getRoleName() : "";
         if (!"ROLE_ADMIN".equalsIgnoreCase(roleName)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập vào phân hệ Quản trị hệ thống!");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Bạn không có quyền truy cập vào phân hệ Quản trị hệ thống!");
             return;
         }
 
@@ -128,8 +129,9 @@ public class AdminController extends HttpServlet {
                 boolean blockSpecial = request.getParameter("blockSpecial") != null;
 
                 if (distStr == null || startStr == null || endStr == null ||
-                    distStr.trim().isEmpty() || startStr.trim().isEmpty() || endStr.trim().isEmpty()) {
-                    session.setAttribute("flashErrorMessage", "Vui lòng nhập đầy đủ Quận/Huyện, Dải số bắt đầu và Dải số kết thúc!");
+                        distStr.trim().isEmpty() || startStr.trim().isEmpty() || endStr.trim().isEmpty()) {
+                    session.setAttribute("flashErrorMessage",
+                            "Vui lòng nhập đầy đủ Quận/Huyện, Dải số bắt đầu và Dải số kết thúc!");
                     response.sendRedirect(request.getContextPath() + "/admin/home");
                     return;
                 }
@@ -139,26 +141,31 @@ public class AdminController extends HttpServlet {
                 int endNumber = Integer.parseInt(endStr.trim());
 
                 if (startNumber < 0 || endNumber < startNumber) {
-                    session.setAttribute("flashErrorMessage", "Dải số không hợp lệ! Số bắt đầu phải nhỏ hơn hoặc bằng số kết thúc và >= 0.");
+                    session.setAttribute("flashErrorMessage",
+                            "Dải số không hợp lệ! Số bắt đầu phải nhỏ hơn hoặc bằng số kết thúc và >= 0.");
                     response.sendRedirect(request.getContextPath() + "/admin/home");
                     return;
                 }
 
                 if (endNumber - startNumber > 5000) {
-                    session.setAttribute("flashErrorMessage", "Giới hạn mỗi lần sinh tối đa là 5,000 biển số để đảm bảo hiệu năng hệ thống!");
+                    session.setAttribute("flashErrorMessage",
+                            "Giới hạn mỗi lần sinh tối đa là 5,000 biển số để đảm bảo hiệu năng hệ thống!");
                     response.sendRedirect(request.getContextPath() + "/admin/home");
                     return;
                 }
 
                 int count = dao.batchGeneratePlates(districtId, startNumber, endNumber, blockSpecial);
                 District d = dao.getDistrictById(districtId);
-                String distName = (d != null) ? (d.getDistrictName() + " [" + d.getPlatePrefix() + "]") : ("Quận #" + districtId);
+                String distName = (d != null) ? (d.getDistrictName() + " [" + d.getPlatePrefix() + "]")
+                        : ("Quận #" + districtId);
 
-                session.setAttribute("flashSuccessMessage", 
-                    "Khởi tạo thành công " + count + " biển số mới vào kho của " + distName + "!" +
-                    (blockSpecial ? " (Đã tự động lọc và khóa các biển số đẹp sang trạng thái Đấu giá BLOCKED)" : ""));
+                session.setAttribute("flashSuccessMessage",
+                        "Khởi tạo thành công " + count + " biển số mới vào kho của " + distName + "!" +
+                                (blockSpecial
+                                        ? " (Đã tự động lọc và khóa các biển số đẹp sang trạng thái Đấu giá BLOCKED)"
+                                        : ""));
 
-            // 2. Thao tác Khóa / Mở khóa biển số (FR-10)
+                // 2. Thao tác Khóa / Mở khóa biển số (FR-10)
             } else if ("toggle_status".equalsIgnoreCase(action)) {
                 String plateIdStr = request.getParameter("plateId");
                 String targetStatus = request.getParameter("targetStatus");
@@ -167,8 +174,8 @@ public class AdminController extends HttpServlet {
                     int plateId = Integer.parseInt(plateIdStr.trim());
                     boolean success = dao.updatePlateStatus(plateId, targetStatus);
                     if (success) {
-                        session.setAttribute("flashSuccessMessage", 
-                            "Cập nhật trạng thái biển số #" + plateId + " sang [" + targetStatus + "] thành công!");
+                        session.setAttribute("flashSuccessMessage",
+                                "Cập nhật trạng thái biển số #" + plateId + " sang [" + targetStatus + "] thành công!");
                     } else {
                         session.setAttribute("flashErrorMessage", "Không thể cập nhật trạng thái biển số!");
                     }
